@@ -3,23 +3,19 @@
 @tailwind utilities;
 
 @layer base {
-    div {
-        @apply text-blue-500;
+    a {
+      @apply text-orange-500;
     }
-}
-
-@layer utilities {
+  }
+  
+  @layer utilities {
     .text-bigger-hello {
-        @apply text-3xl font-semibold;
+      @apply text-3xl font-semibold;
     }
-}
-
-@layer components {
+  }
+  
+  @layer components {
     .btn {
-        @apply w-full bg-black h-10 text-white rounded-sexy-name;
+      @apply w-full bg-black h-10 text-white rounded-sexy-name mt-tomato;
     }
-}
-
-.btn {
-    @apply w-full bg-black h-10 text-white rounded-sexy-name;
-}
+  }
