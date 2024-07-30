@@ -5,7 +5,8 @@ import {
   PASSWORD_REGEX_ERROR,
 } from "@/lib/constants";
 import db from "@/lib/db";
-import { boolean, z } from "zod";
+import { z } from "zod";
+import bcrypt from "bcrypt";
 
 const checkUsername = (username: string) => !username.includes("potato");
 
@@ -27,11 +28,6 @@ const checkUniqueUsername = async (username: string) => {
     },
   });
 
-  // if(user) {
-  //   return false;
-  // } else {
-  //   return true;
-  // }
   return !Boolean(user);
 };
 
@@ -90,6 +86,20 @@ export async function createAccount(prevState: any, formData: FormData) {
   if (!result.success) {
     return result.error.flatten();
   } else {
-    console.log(result.data);
+    const hashedPassword = await bcrypt.hash(result.data.password, 12);
+    console.log(hashedPassword);
+
+    const user = await db.user.create({
+      data: {
+        username: result.data.username,
+        email: result.data.email,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    console.log(user);
   }
 }
