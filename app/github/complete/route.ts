@@ -1,46 +1,28 @@
+import { getGithubAccessToken, getGithubEmail, githubLogin } from "@/lib/auth";
 import db from "@/lib/db";
-import getSession from "@/lib/sessions";
-import { access } from "fs/promises";
-import { notFound, redirect } from "next/navigation";
+import { commonLogin } from "@/lib/sessions";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
+
   if (!code) {
     return new Response(null, {
       status: 400,
     });
   }
-  const accessTokenParams = new URLSearchParams({
-    client_id: process.env.GITHUB_CLIENT_ID!,
-    client_secret: process.env.GITHUB_CLIENT_SECRET!,
-    code,
-  }).toString();
 
-  const accessTokenUrl = `https://github.com/login/oauth/access_token?${accessTokenParams}`;
-
-  const accessTokenResponse = await fetch(accessTokenUrl, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-    },
-  });
-  const { error, access_token } = await accessTokenResponse.json();
+  const { error, access_token } = await getGithubAccessToken(code);
 
   if (error) {
     return new Response(null, {
       status: 400,
     });
   }
+  //   Code Challenge 3. 이메일 정보 가져오기
+  const githubEmail = await getGithubEmail(access_token);
 
-  const userProfileResponse = await fetch("https://api.github.com/user", {
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
-    cache: "no-cache",
-  });
-
-  const { id, avatar_url, login } = await userProfileResponse.json();
+  const { id, avatar_url, login } = await githubLogin(access_token);
 
   const user = await db.user.findUnique({
     where: {
@@ -51,26 +33,20 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  if (user) {
-    const session = await getSession();
-    session.id = user.id;
-    await session.save();
-    return redirect("/profile");
-  }
-  // Code Challenge 1. 로그인 함수 만들기
-  // Code Challenge 2. 새로운 유저를 만들건데 깃허브 닉네임과 중복되면 닉네임-gh 붙이기
-  // Code Challenge 3. 이메일 정보 가져오기
-  //   const userProfileResponse = await fetch("https://api.github.com/user/emails", {
-  //     headers: {
-  //       Authorization: `Bearer ${access_token}`,
-  //     },
-  //     cache: "no-cache",
-  //   });
-  // Code Challenge 4. request, response 함수로 구분하기
+  if (user) await commonLogin(user.id);
+
+  const hasUserName = await db.user.findUnique({
+    where: {
+      username: login,
+    },
+    select: {
+      id: true,
+    },
+  });
 
   const newUser = await db.user.create({
     data: {
-      username: login,
+      username: Boolean(hasUserName!.id) ? login + "-gh" : login,
       github_id: id + "",
       avatar: avatar_url,
     },
@@ -79,8 +55,5 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  const session = await getSession();
-  session.id = newUser.id;
-  await session.save();
-  return redirect("/profile");
+  await commonLogin(newUser.id);
 }

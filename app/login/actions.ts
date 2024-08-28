@@ -9,8 +9,7 @@ import {
 } from "@/lib/constants";
 import db from "@/lib/db";
 import { z } from "zod";
-import { redirect } from "next/navigation";
-import getSession from "@/lib/sessions";
+import { commonLogin } from "@/lib/sessions";
 
 const checkEmailExists = async (email: string) => {
   const user = await db.user.findUnique({
@@ -62,10 +61,7 @@ export async function login(prevState: any, formData: FormData) {
     const ok = await bcrypt.compare(result.data.password, user!.password ?? "");
 
     if (ok) {
-      const session = await getSession();
-      session.id = user!.id;
-      await session.save();
-      redirect("/profile");
+      await commonLogin(user!.id);
     } else {
       return {
         fieldErros: {
