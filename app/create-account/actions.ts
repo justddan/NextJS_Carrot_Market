@@ -1,6 +1,10 @@
 "use server";
 import { z } from "zod";
 
+const passwordRegex = new RegExp(
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*?[#?!@$%^&*-]).+$/
+);
+
 const checkUsername = (username: string) => !username.includes("potato");
 
 const checkPassword = ({
@@ -20,9 +24,18 @@ const formSchema = z
       })
       .min(3, "Way too shor!!")
       .max(10, "That is too Longggg!")
+      .toLowerCase()
+      .trim()
+      .transform((username) => `🔥${username}🔥`)
       .refine(checkUsername, "No Potato"),
-    email: z.string().email(),
-    password: z.string().min(10),
+    email: z.string().email().toLowerCase(),
+    password: z
+      .string()
+      .min(4)
+      .regex(
+        passwordRegex,
+        "A password must have lowercase, UPPERCASE, a number and special characters."
+      ),
     confirm_password: z.string().min(10),
   })
   .refine(checkPassword, {
@@ -40,11 +53,20 @@ export async function createAccount(prevState: any, formData: FormData) {
 
   const result = formSchema.safeParse(data);
 
-  return {
-    username: data.username?.toString(),
-    email: data.email?.toString(),
-    password: data.password?.toString(),
-    confirm_password: data.confirm_password?.toString(),
-    errors: result.error?.flatten(),
-  };
+  if (!result.success) {
+    return {
+      username: data.username?.toString(),
+      email: data.email?.toString(),
+      password: data.password?.toString(),
+      confirm_password: data.confirm_password?.toString(),
+      errors: result.error?.flatten(),
+    };
+  } else {
+    return {
+      username: data.username?.toString(),
+      email: data.email?.toString(),
+      password: data.password?.toString(),
+      confirm_password: data.confirm_password?.toString(),
+    };
+  }
 }
