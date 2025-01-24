@@ -1,7 +1,7 @@
 "use client";
 
-import FormButton from "@/components/form-btn";
-import FormInput from "@/components/form-input";
+import Button from "@/components/button";
+import Input from "@/components/input";
 import SocialLogin from "@/components/social-login";
 import { createAccount } from "./actions";
 import { useActionState } from "react";
@@ -20,15 +20,17 @@ export default function CreateAccount() {
         // onSubmit={onSubmit}
         className="flex flex-col gap-3"
       >
-        <FormInput
+        <Input
           name="username"
           type="text"
           placeholder="Username"
           defaultValue={state?.username ?? ""}
           errors={state?.errors?.fieldErrors.username}
           required
+          minLength={3}
+          maxLength={10}
         />
-        <FormInput
+        <Input
           name="email"
           type="email"
           placeholder="Email"
@@ -36,23 +38,25 @@ export default function CreateAccount() {
           errors={state?.errors?.fieldErrors.email}
           required
         />
-        <FormInput
+        <Input
           name="password"
           type="password"
           placeholder="Password"
           defaultValue={state?.password ?? ""}
           errors={state?.errors?.fieldErrors.password}
           required
+          minLength={4}
         />
-        <FormInput
+        <Input
           name="confirm_password"
           type="password"
           placeholder="Confirm Password"
           defaultValue={state?.confirm_password ?? ""}
           errors={state?.errors?.fieldErrors.confirm_password}
           required
+          minLength={4}
         />
-        <FormButton text="Create Account" />
+        <Button text="Create Account" />
       </form>
       <SocialLogin />
     </div>
