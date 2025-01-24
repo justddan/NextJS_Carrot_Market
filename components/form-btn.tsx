@@ -10,6 +10,7 @@ export default function FormButton({ text }: FormButtonProps) {
   const { pending } = useFormStatus();
   return (
     <button
+      type="submit"
       disabled={pending}
       className="primary-btn h-10 disabled:bg-neutral-400 disabled:text-neutral-300 disabled:cursor-not-allowed"
     >

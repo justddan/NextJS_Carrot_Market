@@ -6,9 +6,8 @@ import SocialLogin from "@/components/social-login";
 import { handleForm } from "./actions";
 import { useActionState } from "react";
 
-export default function Login() {
+export default function LogIn() {
   const [state, action] = useActionState(handleForm, null);
-
   return (
     <div className="flex flex-col gap-10 py-8 px-6">
       <div className="flex flex-col gap-2 *:font-medium">
@@ -20,6 +19,7 @@ export default function Login() {
           name="email"
           type="email"
           placeholder="Email"
+          defaultValue={state?.email ?? ""}
           required
           errors={[]}
         />
@@ -27,6 +27,7 @@ export default function Login() {
           name="password"
           type="password"
           placeholder="Password"
+          defaultValue={state?.password ?? ""}
           required
           errors={state?.errors ?? []}
         />
