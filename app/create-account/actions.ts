@@ -4,9 +4,36 @@ import {
   PASSWORD_REGEX,
   PASSWORD_REGEX_ERROR,
 } from "@/lib/constants";
+import db from "@/lib/db";
 import { z } from "zod";
 
 const checkUsername = (username: string) => !username.includes("potato");
+
+const checkUniqueUsername = async (username: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      username,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return !Boolean(user);
+};
+
+const checkUniqueEmail = async (email: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      email,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return Boolean(user) === false;
+};
 
 const checkPassword = ({
   password,
@@ -27,13 +54,19 @@ const formSchema = z
       .max(10, "That is too Longggg!")
       .toLowerCase()
       .trim()
-      .transform((username) => `🔥${username}🔥`)
-      .refine(checkUsername, "No Potato"),
-    email: z.string().email().toLowerCase(),
-    password: z
+      // .transform((username) => `🔥${username}🔥`)
+      .refine(checkUsername, "No Potato")
+      .refine(checkUniqueUsername, "This username is already taken"),
+    email: z
       .string()
-      .min(PASSWORD_MIN_LENGTH)
-      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+      .email()
+      .toLowerCase()
+      .refine(
+        checkUniqueEmail,
+        "There is an account already registered with that email"
+      ),
+    password: z.string().min(PASSWORD_MIN_LENGTH),
+    // .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
   })
   .refine(checkPassword, {
@@ -49,7 +82,7 @@ export async function createAccount(prevState: any, formData: FormData) {
     confirm_password: formData.get("confirm_password"),
   };
 
-  const result = formSchema.safeParse(data);
+  const result = await formSchema.safeParseAsync(data);
 
   if (!result.success) {
     return {
@@ -60,6 +93,12 @@ export async function createAccount(prevState: any, formData: FormData) {
       errors: result.error?.flatten(),
     };
   } else {
+    // DB에 username, email이 있는지 검사하기
+    // password 해쉬하기
+    // DB에 저장하기
+    // 로그인하기
+    // redirect하기
+
     return {
       username: data.username?.toString(),
       email: data.email?.toString(),
