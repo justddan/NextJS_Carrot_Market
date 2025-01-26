@@ -6,6 +6,7 @@ import {
 } from "@/lib/constants";
 import db from "@/lib/db";
 import { z } from "zod";
+import bcrypt from "bcrypt";
 
 const checkUsername = (username: string) => !username.includes("potato");
 
@@ -94,8 +95,21 @@ export async function createAccount(prevState: any, formData: FormData) {
     };
   } else {
     // DB에 username, email이 있는지 검사하기
-    // password 해쉬하기
-    // DB에 저장하기
+    const hashedPassword = await bcrypt.hash(result.data.password, 12);
+
+    const user = await db.user.create({
+      data: {
+        username: result.data.username,
+        email: result.data.email,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    console.log(user);
+
     // 로그인하기
     // redirect하기
 
