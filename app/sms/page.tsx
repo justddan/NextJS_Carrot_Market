@@ -33,7 +33,7 @@ export default function SMSLogin() {
         ) : (
           <Input
             name="phone"
-            type="number"
+            type="text"
             placeholder="Phone number"
             required
             defaultValue={state.phone}
