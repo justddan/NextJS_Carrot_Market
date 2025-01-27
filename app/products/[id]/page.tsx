@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import { deleteProduct } from "@/lib/product";
 import getSession from "@/lib/session";
 import { formatToWon } from "@/lib/util";
 import { UserIcon } from "@heroicons/react/24/solid";
@@ -34,15 +35,22 @@ export default async function ProductDetail({
 }: {
   params: { id: string };
 }) {
-  const id = Number(params.id);
+  const { id } = await params;
 
-  if (isNaN(id)) return notFound();
+  const numberedId = Number(id);
 
-  const product = await getProduct(id);
+  if (isNaN(numberedId)) return notFound();
+
+  const product = await getProduct(numberedId);
 
   if (!product) return notFound();
 
   const isOwner = await getIsOwner(product.userId);
+
+  const onClick = async () => {
+    "use server";
+    await deleteProduct(product.id);
+  };
 
   return (
     <div>
@@ -75,9 +83,11 @@ export default async function ProductDetail({
           {formatToWon(product.price)}원
         </span>
         {isOwner ? (
-          <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">
-            Delete Product
-          </button>
+          <form action={onClick}>
+            <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">
+              Delete Product
+            </button>
+          </form>
         ) : null}
         <Link
           className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
