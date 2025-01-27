@@ -1,5 +1,6 @@
 "use server";
 
+import twilio from "twilio";
 import crypto from "crypto";
 import { z } from "zod";
 import validator from "validator";
@@ -93,7 +94,18 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
           },
         },
       });
-      // Twilio 사용해서 토큰 보내기
+
+      const client = twilio(
+        process.env.TWILIO_ACCOUNT_SID,
+        process.env.TWILIO_AUTH_TOKEN
+      );
+
+      await client.messages.create({
+        body: `Your Karrot verification code is : ${token}`,
+        from: process.env.TWILIO_PHONE_NUMBER!,
+        to: process.env.MY_PHONE_NUMBER!,
+      });
+
       return {
         phone: phone?.toString(),
         token: true,
