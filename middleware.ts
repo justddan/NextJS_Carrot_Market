@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import getSession from "./lib/session";
+import db from "./lib/db";
 
 export async function middleware(request: NextRequest) {
-  console.log("hello");
+  await db.user.findMany({});
 }
 
 export const config = {
