@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import getSession from "./lib/session";
 
 export async function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
-  if (pathname === "/") {
-    const response = NextResponse.next();
-    response.cookies.set("middleware-cookie", "hello");
-  }
-  if (request.nextUrl.pathname === "/profile") {
-    return Response.redirect(new URL("/", request.url));
-  }
+  console.log("hello");
 }
+
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};
