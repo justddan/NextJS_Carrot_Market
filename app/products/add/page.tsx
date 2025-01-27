@@ -68,6 +68,7 @@ export default function AddProduct() {
           placeholder="제목"
           type="text"
           defaultValue={state?.title}
+          errors={state?.errors?.fieldErrors.title}
         />
         <Input
           name="price"
@@ -75,6 +76,7 @@ export default function AddProduct() {
           placeholder="가격"
           type="number"
           defaultValue={state?.price}
+          errors={state?.errors?.fieldErrors.price}
         />
         <Input
           name="description"
@@ -82,6 +84,7 @@ export default function AddProduct() {
           placeholder="자세한 설명"
           type="text"
           defaultValue={state?.description}
+          errors={state?.errors?.fieldErrors.description}
         />
         <Button text="작성 완료" />
       </form>
