@@ -118,12 +118,5 @@ export async function createAccount(prevState: any, formData: FormData) {
     await loginWithId(user.id);
     // redirect하기
     redirect("/profile");
-
-    return {
-      username: data.username?.toString(),
-      email: data.email?.toString(),
-      password: data.password?.toString(),
-      confirm_password: data.confirm_password?.toString(),
-    };
   }
 }
