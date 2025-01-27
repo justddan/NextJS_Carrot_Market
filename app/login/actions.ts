@@ -8,8 +8,8 @@ import {
 } from "@/lib/constants";
 import db from "@/lib/db";
 import { z } from "zod";
-import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
+import { loginWithId } from "@/lib/auth";
 
 const checkEmailExists = async (email: string) => {
   const user = await db.user.findUnique({
@@ -68,9 +68,7 @@ export async function login(prevState: any, formData: FormData) {
     );
 
     if (ok) {
-      const session = await getSession();
-      session.id = user!.id;
-      await session.save();
+      await loginWithId(user!.id);
       redirect("/profile");
     } else {
       return {

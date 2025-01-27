@@ -8,7 +8,7 @@ import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import getSession from "@/lib/session";
+import { loginWithId } from "@/lib/auth";
 
 const checkPassword = ({
   password,
@@ -115,10 +115,7 @@ export async function createAccount(prevState: any, formData: FormData) {
     });
 
     // 로그인하기
-    const session = await getSession();
-
-    session.id = user.id;
-    await session.save();
+    await loginWithId(user.id);
     // redirect하기
     redirect("/profile");
 
