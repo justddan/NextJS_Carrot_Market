@@ -32,6 +32,9 @@ export const metadata = {
   title: "Home",
 };
 
+// export const dynamic = "auto"; // "auto" | "force-dynamic" | "force-static" | "error"
+// export const revalidate = 0; // false | number | 0
+
 export default async function Product() {
   const initialProducts = await getCachedProducts();
 
