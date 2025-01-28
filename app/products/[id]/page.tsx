@@ -58,6 +58,7 @@ export default async function ProductDetail({
         <Image
           fill
           src={product.photo}
+          // src={`${product.photo}/public`}
           className="object-cover"
           alt={product.title}
         />
