@@ -5,9 +5,12 @@ import { Prisma } from "@prisma/client";
 import { unstable_cache as nextCache } from "next/cache";
 import Link from "next/link";
 
-const getCachedProducts = nextCache(getInitialProducts, ["home-products"]);
+const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
+  revalidate: 60,
+});
 
 async function getInitialProducts() {
+  console.log("hit!!!!");
   const products = await db.product.findMany({
     select: {
       title: true,
@@ -16,12 +19,11 @@ async function getInitialProducts() {
       photo: true,
       id: true,
     },
-    // take: 1,
+    // take:1,
     orderBy: {
       created_at: "desc",
     },
   });
-
   return products;
 }
 
