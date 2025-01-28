@@ -14,6 +14,15 @@ async function getIsOwner(userId: number) {
   return false;
 }
 
+async function getCachedFetch() {
+  fetch("https://api.com", {
+    next: {
+      revalidate: 60,
+      tags: ["hello"],
+    },
+  });
+}
+
 async function getProduct(id: number) {
   const product = await db.product.findUnique({
     where: {
