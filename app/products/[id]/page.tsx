@@ -156,3 +156,5 @@ export async function generateStaticParams() {
   });
   return products.map((product) => ({ id: product.id + "" }));
 }
+
+// useOptimistic 활용하여 댓글창 구현하기
