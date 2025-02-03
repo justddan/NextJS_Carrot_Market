@@ -1,6 +1,7 @@
 "use client";
 
 import { InitialChatMessages } from "@/app/chats/[id]/page";
+import { saveMessage } from "@/app/chats/actions";
 import { formatToTimeAgo } from "@/lib/util";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
@@ -15,12 +16,16 @@ interface ChatMessagesListProps {
   initialMessages: InitialChatMessages;
   userId: number;
   chatroomId: string;
+  username: string;
+  avatar: string;
 }
 
 export default function ChatMessagesList({
   initialMessages,
   userId,
   chatroomId,
+  username,
+  avatar,
 }: ChatMessagesListProps) {
   const [messages, setMessages] = useState(initialMessages);
   const [message, setMessage] = useState("");
@@ -31,7 +36,7 @@ export default function ChatMessagesList({
     } = event;
     setMessage(value);
   };
-  const onSubmit = (event: React.FormEvent) => {
+  const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setMessages((prevMsgs) => [
       ...prevMsgs,
@@ -40,8 +45,8 @@ export default function ChatMessagesList({
         payload: message,
         userId,
         user: {
-          avatar: "",
-          username: "",
+          avatar,
+          username,
         },
         created_at: new Date(),
       },
@@ -49,8 +54,14 @@ export default function ChatMessagesList({
     channel.current?.send({
       type: "broadcast",
       event: "message",
-      payload: { message },
+      payload: {
+        id: Date.now(),
+        payload: message,
+        created_at: new Date(),
+        userId,
+      },
     });
+    await saveMessage(message, chatroomId);
     setMessage("");
   };
 
@@ -59,7 +70,7 @@ export default function ChatMessagesList({
     channel.current = client.channel(`room-${chatroomId}`);
     channel.current
       .on("broadcast", { event: "message" }, (payload) => {
-        console.log(payload);
+        setMessages((prevMsgs) => [...prevMsgs, payload.payload]);
       })
       .subscribe();
     return () => {
