@@ -9,6 +9,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        roboto: "var(--roboto-text)",
+        rubick: "var(--rubick-text)",
+      },
       margin: {
         tomato: "120px",
       },
